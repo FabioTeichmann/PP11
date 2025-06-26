@@ -91,8 +91,22 @@ In this exercise you will:
 #### Reflection Questions
 
 1. **How do you link `prev` and `next` pointers correctly using a static array?**
+Man nutzt die festen Speicherplätze im Array (&nodes[i]) und referenziert die benachbarten Elemente direkt, z. B. nodes[i].next = &nodes[i+1].
+
 2. **What are advantages and limitations of compile-time vs. dynamic allocation?**
+Vorteile (statisch):
+-Kein malloc/free nötig → weniger fehleranfällig
+-Keine Fragmentierung
+-Schneller Zugriff (alles auf dem Stack/Globalbereich)
+
+Nachteile:
+-Feste Größe → keine Flexibilität
+-Speicherverbrauch fix und evtl. verschwenderisch
+
+
 3. **How would you extend this static list to include additional data fields?**
+Einfach den DNode um weitere Felder ergänzen.
+Beispiel: char *label;
 
 ---
 
@@ -159,9 +173,17 @@ In this exercise you will:
 #### Reflection Questions
 
 1. **Why is `malloc` necessary when adding nodes dynamically?**
-2. **How can you traverse the list to print each node’s address and value?**
-3. **What are the consequences of not freeing the list before exit?**
+Weil wir zur Laufzeit neuen Speicher für Knoten brauchen. Ohne malloc könnten wir keine neue Speicherzelle außerhalb der Stack-Variablen anlegen.
 
+2. **How can you traverse the list to print each node’s address and value?**
+Mit einer einfachen Schleife:
+for (SNode *p = head; p; p = p->next) {
+    printf("Node at %p: %d\n", (void*)p, p->value);
+}
+
+
+3. **What are the consequences of not freeing the list before exit?**
+Dann entstehen Speicherlecks: Der Heap-Speicher, der mit malloc angefordert wurde, wird nicht freigegeben. In größeren Programmen kann das schnell zu Problemen führen (z. B. erhöhter Speicherverbrauch, Abstürze, Instabilität).
 ---
 
 ### Task 3: JSON Array to Linked List
@@ -244,9 +266,17 @@ gcc -o solutions/json_main solutions/json_main.c solutions/json_list.o -ljansson
 #### Reflection Questions
 
 1. **How does using `getopt` make the program more flexible than `argv[1]`?**
-2. **What happens if the user omits the `-i` option?**
-3. **How can you validate that the JSON file loaded is indeed an array?**
+getopt erlaubt klar strukturierte optionale Argumente wie -i, -v, -h, auch in beliebiger Reihenfolge. Bei argv[1] bist du auf eine feste Position angewiesen.
 
+2. **What happens if the user omits the `-i` option?**
+Die Variable filename bleibt NULL, und usage() wird aufgerufen. Das Programm zeigt die Hilfe an und beendet sich mit Fehlercode 1.
+
+3. **How can you validate that the JSON file loaded is indeed an array?**
+→ Mit json_is_array():
+if (!json_is_array(root)) {
+    fprintf(stderr, "Fehler: JSON ist kein Array\n");
+    return NULL;
+}
 ---
 
 **Remember:** Stop after **90 minutes** and record where you stopped.
